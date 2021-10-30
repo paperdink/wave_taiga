@@ -18,8 +18,10 @@ uint8_t input_buffer[3 * input_buffer_pixels]; // up to depth 24
 uint8_t mono_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 b/w
 uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 
-const char* server = "api.todoist.com";  // Server URL
-const char* url = "/rest/v1/tasks";
+String taiga_project_id;
+String auth_url = "https://api.taiga.io/api/v1/auth";
+String slug_url = "https://api.taiga.io/api/v1/projects/by_slug?slug="TAGIA_PROJECT_USERNAME"-"TAGIA_PROJECT_NAME;
+String tasks_url = "https://api.taiga.io/api/v1/userstories?include_tasks=1&status__is_archived=false&project=";
 char tasks[MAX_TASKS][MAX_TODO_STR_LENGTH+1];
 uint8_t task_count;
 TodoJsonListener todo_listener;
@@ -32,52 +34,48 @@ WiFiClientSecure client;
 
 int8_t FetchTODO(){
   //TODO: Handle failures
-  String response;
-  ArudinoStreamParser parser;
+  // Make a HTTP request:
+  int httpCode;
+  String payload;
+  HTTPClient https;
+  WiFiClientSecure *client = new WiFiClientSecure;
   
-  parser.setListener(&todo_listener);
-  
-  DEBUG.println("Starting connection to server...");
-  if (!client.connect(server, 443)){
-    DEBUG.println("Connection failed!");
-    return -1;
+  https.begin(*client, slug_url.c_str());
+  https.addHeader("Authorization", TAIGA_TOKEN, 0, 0);
+  httpCode = https.GET();
+  //payload = https.getString();
+  //DEBUG.println(payload);
+          
+  if(httpCode == HTTP_CODE_OK) {
+    DEBUG.printf("[HTTP] GET SUCCESS\n");
+    ArudinoStreamParser parser;
+    parser.setListener(&todo_listener);
+    https.writeToStream(&parser);
   } else {
-    DEBUG.println("Connected to server!");
-    // Make a HTTP request:
-    client.print("GET ");
-    client.print(url);
-    client.println(" HTTP/1.0");
-    
-    client.print("Host: ");
-    client.println(server);
-    
-    client.print("Authorization: Bearer ");
-    client.println(TODOIST_TOKEN);
-    
-    client.println("Connection: close");
-    
-    client.println();
-
-    /* Get the headers */
-    while (client.connected()) {
-      String line = client.readStringUntil('\n');
-      if (line == "\r") {
-        break;
-      }
-    }
-
-     while (client.connected()) {
-        while (client.available()) {
-          char c = client.read();
-          //file.write(c);
-          //DEBUG.write(c);
-          parser.parse(c);
-        }
-    }
-    
-    client.stop();
-    return 0;
+    DEBUG.printf("[HTTP] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
   }
+  https.end();
+
+  tasks_url += taiga_project_id;
+  https.begin(*client, tasks_url.c_str());
+  https.addHeader("Authorization", TAIGA_TOKEN, 0, 0);
+  httpCode = https.GET();
+  //payload = https.getString();
+  //DEBUG.println(payload);
+  
+  if(httpCode == HTTP_CODE_OK) {
+    DEBUG.printf("[HTTP] GET SUCCESS\n");
+    ArudinoStreamParser parser;
+    parser.setListener(&todo_listener);
+    https.writeToStream(&parser);
+  } else {
+    DEBUG.printf("[HTTP] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+  }
+
+  https.end();
+  
+  return 0;
+  
 }
 
 void display_tasks(GxEPD_Class* display){

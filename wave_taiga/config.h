@@ -12,13 +12,15 @@
 #include "Mont_ExtraLightDEMO8pt7b.h"
 
 // DETAILS TO EDIT
-#define SSID     "*****" // your network SSID (name of wifi network)
-#define PASSWORD "*****" // your network password
-#define TODOIST_TOKEN "*******" // your todoist API key without the word "Bearer"
-#define CITY "*****" // your city for weather
-#define COUNTRY "*****" // your country for weather
-#define OWM_ID "*****" // your open weather map APP ID
-#define TIME_ZONE "-05:30" // your time zone
+#define SSID     "*****" // network SSID (name of wifi network)
+#define PASSWORD "*****" // network password
+#define TAIGA_TOKEN "*****" // taiga API key
+#define TAGIA_PROJECT_USERNAME "*****" // taiga project username
+#define TAGIA_PROJECT_NAME "*****" // taiga project name
+#define CITY "*****" // city for weather
+#define COUNTRY "*****" // country for weather
+#define OWM_ID "*****" // open weather map APP ID
+#define TIME_ZONE "-05:30" // time zone
 #define START_DAY_OFFSET 0 // Offset to change start day. 0=>Sun, 1=>Sat, 2=>Fri ... 6=>Mon
 #define FORECAST_HOURS 9 // Show forecasted weather this many hours from update time. 0 for current weather
 #define NUM_IMAGES 5 // Number of images in data folder. Will cycle through these images
