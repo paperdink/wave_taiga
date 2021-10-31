@@ -14,8 +14,8 @@
 // DETAILS TO EDIT
 #define SSID     "*****" // network SSID (name of wifi network)
 #define PASSWORD "*****" // network password
-#define TAIGA_TOKEN "*****" // taiga API key
 #define TAGIA_PROJECT_USERNAME "*****" // taiga project username
+#define TAIGA_PROJECT_PASSWORD "*****" // taiga project password
 #define TAGIA_PROJECT_NAME "*****" // taiga project name
 #define CITY "*****" // city for weather
 #define COUNTRY "*****" // country for weather

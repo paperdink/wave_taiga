@@ -2,13 +2,14 @@
 #include "custom_parser.h"
 #include "JsonListener.h"
 
-enum STATE {NOT_FOUND, FOUND_TASK, FOUND_ID, FOUND_TIME, FOUND_WEATHER, FOUND_MAIN};
+enum STATE {NOT_FOUND, FOUND_TASK, FOUND_ID, FOUND_TOKEN, W_ID, FOUND_TIME, FOUND_WEATHER, FOUND_MAIN};
 static STATE key_found; 
 
 extern char tasks[MAX_TASKS][MAX_TODO_STR_LENGTH+1];
 extern uint8_t task_count;
 static bool id_found = false;
 extern String taiga_project_id;
+extern String taiga_token;
 
 extern char weather_string[10];
 static uint8_t weather_count;
@@ -18,15 +19,19 @@ void TodoJsonListener::whitespace(char c) {
 
 void TodoJsonListener::startDocument() {
   task_count = 0;
-  key_found = NOT_FOUND;
 }
 
 void TodoJsonListener::key(String key) {
+  if(key.equals("auth_token")){
+    key_found = FOUND_TOKEN;
+  }
+  
+  if(key_found == W_ID && key.equals("id")){
+    DEBUG.println("Got id");
+    key_found = FOUND_ID;
+  }
+  
   if(task_count < MAX_TASKS){
-    if(!id_found && key.equals("id")){
-      DEBUG.println("Got id");
-      key_found = FOUND_ID;
-    }
     if(id_found && key.equals("subject")){
       key_found = FOUND_TASK;
     }
@@ -34,6 +39,11 @@ void TodoJsonListener::key(String key) {
 }
 
 void TodoJsonListener::value(String value) {
+  if(key_found == FOUND_TOKEN){
+    taiga_token += value;
+    key_found = W_ID;
+  }
+  
   if(!id_found && key_found == FOUND_ID){
     id_found = true;
     DEBUG.println(value);

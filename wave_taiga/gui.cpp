@@ -25,6 +25,7 @@ String tasks_url = "https://api.taiga.io/api/v1/userstories?include_tasks=1&stat
 char tasks[MAX_TASKS][MAX_TODO_STR_LENGTH+1];
 uint8_t task_count;
 TodoJsonListener todo_listener;
+String taiga_token = "Bearer ";
 
 const char* openweathermap_link = "http://api.openweathermap.org/data/2.5/forecast?q="CITY","COUNTRY"&appid="OWM_ID;
 char weather_string[10];
@@ -37,37 +38,56 @@ int8_t FetchTODO(){
   String payload;
   HTTPClient https;
   WiFiClientSecure *client = new WiFiClientSecure;
+
+  https.begin(*client, auth_url.c_str());
+  https.addHeader("Content-Type", "application/json", 0, 0);
   
+  httpCode = https.POST("{ \"type\": \"normal\", \"username\": \""TAGIA_PROJECT_USERNAME"\", \"password\": \""TAIGA_PROJECT_PASSWORD"\" }");
+  
+  if(httpCode == HTTP_CODE_OK) {
+      // HTTP header has been send and Server response header has been handled
+      DEBUG.printf("[HTTP] AUTH SUCCESS\n");
+      //String payload = https.getString();
+      //Serial.println(payload);
+      ArudinoStreamParser parser;
+      parser.setListener(&todo_listener);
+      https.writeToStream(&parser);
+  } else {
+      DEBUG.printf("[HTTP] AUTH... failed, error: %s\n", https.errorToString(httpCode).c_str());
+  }
+  
+  https.end();
+
   https.begin(*client, slug_url.c_str());
-  https.addHeader("Authorization", TAIGA_TOKEN, 0, 0);
+  https.addHeader("Authorization", taiga_token.c_str(), 0, 0);
   httpCode = https.GET();
-  //payload = https.getString();
-  //DEBUG.println(payload);
           
   if(httpCode == HTTP_CODE_OK) {
-    DEBUG.printf("[HTTP] GET SUCCESS\n");
+    DEBUG.printf("[HTTP] SLUG SUCCESS\n");
+    //payload = https.getString();
+    //DEBUG.println(payload);
     ArudinoStreamParser parser;
     parser.setListener(&todo_listener);
     https.writeToStream(&parser);
   } else {
-    DEBUG.printf("[HTTP] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+    DEBUG.printf("[HTTP] SLUG... failed, error: %s\n", https.errorToString(httpCode).c_str());
   }
   https.end();
 
   tasks_url += taiga_project_id;
   https.begin(*client, tasks_url.c_str());
-  https.addHeader("Authorization", TAIGA_TOKEN, 0, 0);
+  https.addHeader("Authorization", taiga_token.c_str(), 0, 0);
   httpCode = https.GET();
-  //payload = https.getString();
-  //DEBUG.println(payload);
   
   if(httpCode == HTTP_CODE_OK) {
-    DEBUG.printf("[HTTP] GET SUCCESS\n");
+    DEBUG.printf("[HTTP] TASKS SUCCESS\n");
+    //payload = https.getString();
+    //DEBUG.println(payload);
     ArudinoStreamParser parser;
     parser.setListener(&todo_listener);
     https.writeToStream(&parser);
   } else {
-    DEBUG.printf("[HTTP] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+    DEBUG.printf("[HTTP] TASKS... failed, error: %s\n", https.errorToString(httpCode).c_str());
   }
 
   https.end();
