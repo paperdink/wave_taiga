@@ -30,8 +30,6 @@ const char* openweathermap_link = "http://api.openweathermap.org/data/2.5/foreca
 char weather_string[10];
 WeatherJsonListener weather_listener;
 
-WiFiClientSecure client;
-
 int8_t FetchTODO(){
   //TODO: Handle failures
   // Make a HTTP request:
