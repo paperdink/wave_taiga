@@ -7,10 +7,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,90 +40,93 @@ RTC_DATA_ATTR uint8_t image_counter;
 
 int8_t connect_wifi();
 
-void setup() {
-  char img_string[6];
-  
-  DEBUG.begin(115200);
-  DEBUG.println();
-  DEBUG.println("paperd.ink");
+void setup()
+{
+	char img_string[6];
 
-  pinMode(EPD_EN, OUTPUT);
-  pinMode(EPD_RES, OUTPUT);
-  pinMode(SD_EN, OUTPUT);
-  pinMode(BATT_EN, OUTPUT);
-  pinMode(PCF_INT, INPUT); // Required to lower power consumption
+	DEBUG.begin(115200);
+	DEBUG.println();
+	DEBUG.println("paperd.ink");
 
-  // Power up EPD
-  digitalWrite(EPD_EN, LOW);
-  digitalWrite(EPD_RES, LOW);
-  delay(50);
-  digitalWrite(EPD_RES, HIGH);
-  delay(50);
-  //display.init(115200); // enable diagnostic output on DEBUG
-  display.init();
- 
-  DEBUG.print("Initializing SPIFFS...");
-  if(!SPIFFS.begin(true)){
-    DEBUG.println("failed!");
-    //return;
-  }else{
-    DEBUG.println("OK!");
-  }
-  delay(100);
+	pinMode(EPD_EN, OUTPUT);
+	pinMode(EPD_RES, OUTPUT);
+	pinMode(SD_EN, OUTPUT);
+	pinMode(BATT_EN, OUTPUT);
+	pinMode(PCF_INT, INPUT);         // Required to lower power consumption
 
-  // TODO: if battery is low then dont connect wifi else brownout
-  if(connect_wifi() == 0){
-    configTime(0, 0, "pool.ntp.org");
-    if(get_date_dtls(TIME_ZONE) < 0){
-      configTime(0, 0, "pool.ntp.org");
-    }
-  }else{
-    get_date_dtls(TIME_ZONE);
-  }
+    // Power up EPD
+	digitalWrite(EPD_EN, LOW);
+	digitalWrite(EPD_RES, LOW);
+	delay(50);
+	digitalWrite(EPD_RES, HIGH);
+	delay(50);
+    //display.init(115200); // enable diagnostic output on DEBUG
+	display.init();
 
-  sprintf(img_string, "%d.bmp", (image_counter++%NUM_IMAGES)+1);
-  drawBitmapFrom_SD_ToBuffer(&display, SPIFFS, img_string, 0, 0, 0);
-  
-  display_tasks(&display);
-  diplay_date(&display);
-  display_weather(&display);
-  
-  display.update();
+	DEBUG.print("Initializing SPIFFS...");
+	if(!SPIFFS.begin(true)){
+		DEBUG.println("failed!");
+        //return;
+	}else{
+		DEBUG.println("OK!");
+	}
+	delay(100);
 
-  DEBUG.println("Turning off everything");
-  digitalWrite(SD_EN, HIGH);
-  digitalWrite(BATT_EN, HIGH);
-  digitalWrite(EPD_EN, HIGH);
-  // Powerdown EPD
-  //display.powerDown(); // Dont use this if you require partial updates
-  digitalWrite(EPD_RES, LOW);
-  delay(50);
-  digitalWrite(EPD_RES, HIGH);
+    // TODO: if battery is low then dont connect wifi else brownout
+	if(connect_wifi() == 0){
+		configTime(0, 0, "pool.ntp.org");
+		if(get_date_dtls(TIME_ZONE) < 0){
+			configTime(0, 0, "pool.ntp.org");
+		}
+	}else{
+		get_date_dtls(TIME_ZONE);
+	}
 
-  // Sleep till update time.
-  uint64_t sleep_time = (86400/(UPDATES_PER_DAY))-(((now.mil_hour*3600)+(now.min*60)+(now.sec))%(86400/UPDATES_PER_DAY));
-  esp_sleep_enable_timer_wakeup(sleep_time*uS_TO_S_FACTOR);
-  DEBUG.printf("Going to sleep for %lld seconds...", sleep_time);
-  // Go to sleep
-  esp_deep_sleep_start();
+	sprintf(img_string, "%d.bmp", (image_counter++%NUM_IMAGES)+1);
+	drawBitmapFrom_SD_ToBuffer(&display, SPIFFS, img_string, 0, 0, 0);
+
+	display_tasks(&display);
+	diplay_date(&display);
+	display_weather(&display);
+
+	display.update();
+
+	DEBUG.println("Turning off everything");
+	digitalWrite(SD_EN, HIGH);
+	digitalWrite(BATT_EN, HIGH);
+	digitalWrite(EPD_EN, HIGH);
+    // Powerdown EPD
+    //display.powerDown(); // Dont use this if you require partial updates
+	digitalWrite(EPD_RES, LOW);
+	delay(50);
+	digitalWrite(EPD_RES, HIGH);
+
+    // Sleep till update time.
+	uint64_t sleep_time = (86400/(UPDATES_PER_DAY))-(((now.mil_hour*3600)+(now.min*60)+(now.sec))%(86400/UPDATES_PER_DAY));
+	esp_sleep_enable_timer_wakeup(sleep_time*uS_TO_S_FACTOR);
+	DEBUG.printf("Going to sleep for %lld seconds...", sleep_time);
+    // Go to sleep
+	esp_deep_sleep_start();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+    // put your main code here, to run repeatedly:
 
 }
 
-int8_t connect_wifi(){
- uint8_t connAttempts = 0;
- WiFi.begin(SSID, PASSWORD);
- while (WiFi.status() != WL_CONNECTED ) {
-   delay(500);
-   DEBUG.print(".");
-   if(connAttempts > 40){
-    return -1;
-   }
-   connAttempts++;
- }
- DEBUG.println("Connected");
- return 0;
+int8_t connect_wifi()
+{
+	uint8_t connAttempts = 0;
+	WiFi.begin(SSID, PASSWORD);
+	while(WiFi.status() != WL_CONNECTED ){
+		delay(500);
+		DEBUG.print(".");
+		if(connAttempts > 40){
+			return -1;
+		}
+		connAttempts++;
+	}
+	DEBUG.println("Connected");
+	return 0;
 }

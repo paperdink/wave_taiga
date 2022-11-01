@@ -23,9 +23,9 @@ int8_t get_date_dtls(String time_zone)
 	sscanf(ctime(&epoch), "%s %s %hhd %hhd:%hhd:%hhd %d", now.wday, now.month, &now.mday, &now.mil_hour, &now.min, &now.sec, &now.year);
 
 	now.month_num = timeinfo.tm_mon + 1;
-	// gives offset of first day of the month with respect to Monday
-	//https://www.tondering.dk/claus/cal/chrweek.php#calcdow
-	// 0=Sunday, 1=Monday ... 6=Saturday
+    // gives offset of first day of the month with respect to Monday
+    //https://www.tondering.dk/claus/cal/chrweek.php#calcdow
+    // 0=Sunday, 1=Monday ... 6=Saturday
 	uint16_t a = (14 - now.month_num) / 12;
 	uint16_t y = now.year - a;
 	uint16_t m = now.month_num + (12 * a) - 2;
@@ -33,7 +33,7 @@ int8_t get_date_dtls(String time_zone)
 	now.day_offset = (1 + y + (y / 4) - (y / 100) + (y / 400) + ((31 * m) / 12)) % 7;
 	now.day_offset = (now.day_offset + START_DAY_OFFSET) % 7;
 
-	// convert to 12 hour
+    // convert to 12 hour
 	if(now.mil_hour > 12){
 		now.hour = now.mil_hour - 12;
 	}else{

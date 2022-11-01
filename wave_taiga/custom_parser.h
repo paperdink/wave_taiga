@@ -8,60 +8,60 @@
 #include "Stream.h"
 
 /* Convert the Json data into an Arduino Stream */
-class ArudinoStreamParser: public Stream, public JsonStreamingParser  {
-  /* https://github.com/mrfaptastic/json-streaming-parser2 */
+class ArudinoStreamParser : public Stream, public JsonStreamingParser  {
+/* https://github.com/mrfaptastic/json-streaming-parser2 */
 public:
-    size_t write(const uint8_t *buffer, size_t size) override;
-    size_t write(uint8_t data) override;
+size_t write(const uint8_t *buffer, size_t size) override;
+size_t write(uint8_t data) override;
 
-    int available() override;
-    int read() override;
-    int peek() override;
-    void flush() override;
+int available() override;
+int read() override;
+int peek() override;
+void flush() override;
 };
 
-class TodoJsonListener: public JsonListener {
+class TodoJsonListener : public JsonListener {
 
-  public:
-    virtual void whitespace(char c);
-  
-    virtual void startDocument();
+public:
+virtual void whitespace(char c);
 
-    virtual void key(String key);
+virtual void startDocument();
 
-    virtual void value(String value);
+virtual void key(String key);
 
-    virtual void endArray();
+virtual void value(String value);
 
-    virtual void endObject();
+virtual void endArray();
 
-    virtual void endDocument();
+virtual void endObject();
 
-    virtual void startArray();
+virtual void endDocument();
 
-    virtual void startObject();
+virtual void startArray();
+
+virtual void startObject();
 };
 
-class WeatherJsonListener: public JsonListener {
+class WeatherJsonListener : public JsonListener {
 
-  public:
-    virtual void whitespace(char c);
-  
-    virtual void startDocument();
+public:
+virtual void whitespace(char c);
 
-    virtual void key(String key);
+virtual void startDocument();
 
-    virtual void value(String value);
+virtual void key(String key);
 
-    virtual void endArray();
+virtual void value(String value);
 
-    virtual void endObject();
+virtual void endArray();
 
-    virtual void endDocument();
+virtual void endObject();
 
-    virtual void startArray();
+virtual void endDocument();
 
-    virtual void startObject();
+virtual void startArray();
+
+virtual void startObject();
 };
 
 #endif /* CUSTOM_PARSER_H */

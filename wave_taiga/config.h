@@ -35,7 +35,7 @@
 #define NUM_IMAGES 5
 
 // Number of times to update starting 12am
-// 1 = Updates every 24 hours 
+// 1 = Updates every 24 hours
 // 2 = Updates every 12 hours
 // 3 = Updates every 8 hours. Not a good idea since it won't line up with day changes.
 // 4 = Updates every 6 hours
